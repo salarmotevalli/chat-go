@@ -7,8 +7,11 @@ import (
 )
 
 type Message struct {
-	ID      primitive.ObjectID `json:"_id" bson:"_id"`
-	Message string             `json:"message" bson:"message"`
+	ID        primitive.ObjectID   `json:"_id" bson:"_id"`
+	Message   string               `json:"message" bson:"message"`
+	Users     []primitive.ObjectID `json:"users" bson:"users"`
+	Sender    primitive.ObjectID   `json:"sender" bson:"sender"`
+	CreatedAt string               `json:"created_at" bson:"created_at"`
 }
 
 type MessageQuery struct{}

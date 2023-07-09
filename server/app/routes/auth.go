@@ -5,8 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setAuthRoutes(eng *gin.Engine) {
-	eng.POST("/login", controllers.Login)
-	eng.POST("/register", controllers.Register)
-	eng.POST("/logout", controllers.LogOut)
+func setAuthRoutes(api *gin.RouterGroup) {
+	// Set prefix
+	auth := api.Group("auth")
+
+	auth.POST("/login", controllers.Login)
+	auth.POST("/register", controllers.Register)
+	auth.POST("/logout", controllers.LogOut)
 }

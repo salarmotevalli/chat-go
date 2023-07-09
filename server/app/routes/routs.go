@@ -7,6 +7,7 @@ import (
 
 func Setup() *gin.Engine {
 	engine := gin.New()
+	engine.Use(corsMiddleware())
 	api := engine.Group("/api")
 	setMessageRoutes(api)
 	setAuthRoutes(api)
@@ -18,7 +19,6 @@ func setMessageRoutes(api *gin.RouterGroup) {
 	// Set prefix
 	msg := api.Group("/messages")
 
-	msg.GET("/", controllers.Index)
 	msg.GET("/allusers/:id", controllers.AllUsers)
 	msg.POST("/setavatart/:id", controllers.SetAvatar)
 	msg.POST("/addmsg", controllers.AddMessage)

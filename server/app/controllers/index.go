@@ -8,18 +8,24 @@ import (
 	"net/http"
 )
 
-func Index(ctx *gin.Context) {
-	var messageModel models.Query = models.MessageModel()
-	messages, err := messageModel.All()
-
+func AllUsers(ctx *gin.Context) {
+	id := ctx.Param("id")
+	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		log.Println(err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	ctx.JSON(http.StatusAccepted, messages)
-}
+	userModel := models.UserModel()
+	users, err := userModel.WhereNe("_id", _id)
+	if err != nil {
+		log.Println(err.Error())
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-func AllUsers(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, users)
 
 }
 

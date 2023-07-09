@@ -100,6 +100,42 @@ func (u UserQuery) WhereEq(field string, target any) ([]interface{}, error) {
 	return interfaces, nil
 }
 
+func (u UserQuery) WhereNe(field string, target any) ([]interface{}, error) {
+	var result []*User
+	query := bson.M{field: bson.M{"$ne": target}}
+	cur, err := users.Find(Ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// Collect data
+	for cur.Next(Ctx) {
+		var user User
+
+		err := cur.Decode(&user)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, &user)
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	err = cur.Close(Ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var interfaces []interface{}
+	for _, item := range result {
+		interfaces = append(interfaces, interface{}(item))
+	}
+	return interfaces, nil
+}
+
 func (u UserQuery) Find(_id primitive.ObjectID) (any, error) {
 	var result User
 	query := bson.D{bson.E{Key: "_id", Value: _id}}

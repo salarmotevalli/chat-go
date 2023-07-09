@@ -1,28 +1,26 @@
 package main
 
 import (
+	"chat/app/models"
 	"chat/app/routes"
 	"context"
 	"fmt"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"log"
 	"net/http"
 	"os"
-	"time"
-
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var (
 	dbClient *mongo.Client
 	ctx      context.Context
+	cancel   context.CancelFunc
 )
 
-type App struct {
-	conn *mongo.Client
-}
+type App struct{}
 
 func init() {
 	// Load env file
@@ -32,8 +30,7 @@ func init() {
 	}
 
 	// Initialize ctx
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	ctx, cancel = context.WithCancel(context.Background())
 
 	// Connect to the mongo
 	dbClient, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -49,16 +46,16 @@ func init() {
 var wait chan struct{}
 
 func main() {
-
 	defer dbClient.Disconnect(ctx)
+	defer cancel()
 
 	wait = make(chan struct{}, 1)
 
-	// Initialize app
-	app := App{
-		conn: dbClient,
-	}
+	dbName := os.Getenv("DB_NAME")
 
+	// Initialize app
+	app := App{}
+	models.Init(dbClient.Database(dbName), ctx)
 	// Serve app
 	go app.serve()
 

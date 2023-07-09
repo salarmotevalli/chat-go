@@ -1,16 +1,12 @@
 package routes
 
 import (
+	"chat/app/controllers"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
-func setupAuth(eng *gin.Engine) {
-	eng.POST("/login", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "logged in")
-	})
-
-	eng.POST("/register", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "registered")
-	})
+func setAuthRoutes(eng *gin.Engine) {
+	eng.POST("/login", controllers.Login)
+	eng.POST("/register", controllers.Register)
+	eng.POST("/logout", controllers.LogOut)
 }

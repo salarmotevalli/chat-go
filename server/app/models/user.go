@@ -7,10 +7,11 @@ import (
 )
 
 type User struct {
-	Username    string `json:"username" bson:"username"`
-	Email       string `json:"email" bson:"email"`
-	Password    string `json:"password" bson:"password"`
-	AvatarImage string `json:"avatarImage" bson:"avatarImage"`
+	ID          primitive.ObjectID `json:"_id" bson:"_id"`
+	Username    string             `json:"username" bson:"username"`
+	Email       string             `json:"email" bson:"email"`
+	Password    string             `json:"password" bson:"password"`
+	AvatarImage string             `json:"avatarImage" bson:"avatarImage"`
 }
 
 type UserQuery struct{}

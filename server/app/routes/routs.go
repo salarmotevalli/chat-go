@@ -8,9 +8,16 @@ import (
 func Setup() *gin.Engine {
 	engine := gin.New()
 
-	engine.GET("/", controllers.Index)
-
-	setupAuth(engine)
+	setRoutes(engine)
+	setAuthRoutes(engine)
 
 	return engine
+}
+
+func setRoutes(eng *gin.Engine) {
+	eng.GET("/", controllers.Index)
+	eng.GET("/allusers/:id", controllers.AllUsers)
+	eng.POST("setavatart/:id", controllers.SetAvatar)
+	eng.POST("addmsg", controllers.AddMessage)
+	eng.POST("getmsg", controllers.GetMessage)
 }

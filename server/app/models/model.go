@@ -12,7 +12,7 @@ var Ctx context.Context
 type Query interface {
 	All() ([]interface{}, error)
 	WhereEq(field string, target any) ([]interface{}, error)
-	Find(_id primitive.ObjectID) (any, error)
+	FindId(_id primitive.ObjectID) (any, error)
 }
 
 func Init(mc *mongo.Database, ctx context.Context) {

@@ -14,12 +14,23 @@ func Setup() *gin.Engine {
 
 	return engine
 }
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	}
+}
 
 func setMessageRoutes(api *gin.RouterGroup) {
 	// Set prefix
 	msg := api.Group("/messages")
 
-	msg.GET("/allusers/:id", controllers.AllUsers)
 	msg.POST("/setavatart/:id", controllers.SetAvatar)
 	msg.POST("/addmsg", controllers.AddMessage)
 	msg.POST("/getmsg", controllers.GetMessage)

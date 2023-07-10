@@ -52,17 +52,10 @@ func GetMessage(ctx *gin.Context) {
 	}
 
 	messageModel := models.MessageModel()
-	from, err := primitive.ObjectIDFromHex(request.From)
-	to, err := primitive.ObjectIDFromHex(request.To)
-	if err != nil {
-		log.Println(err.Error())
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
-	users := []primitive.ObjectID{
-		from,
-		to,
+	users := []string{
+		request.From,
+		request.To,
 	}
 
 	messages, err := messageModel.WhereEq("users", users)

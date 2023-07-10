@@ -61,12 +61,18 @@ func (m MessageQuery) All() ([]interface{}, error) {
 	for _, item := range result {
 		interfaces = append(interfaces, interface{}(item))
 	}
+
+	if interfaces == nil {
+		interfaces = []interface{}{}
+	}
+
 	return interfaces, nil
 }
 
 func (m MessageQuery) WhereEq(field string, target any) ([]interface{}, error) {
 	var result []*Message
-	query := bson.D{bson.E{Key: field, Value: target}}
+
+	query := bson.M{field: bson.M{"$eq": target}}
 	cur, err := users.Find(Ctx, query)
 
 	if err != nil {
@@ -97,6 +103,10 @@ func (m MessageQuery) WhereEq(field string, target any) ([]interface{}, error) {
 	var interfaces []interface{}
 	for _, item := range result {
 		interfaces = append(interfaces, interface{}(item))
+	}
+
+	if interfaces == nil {
+		interfaces = []interface{}{}
 	}
 
 	return interfaces, nil

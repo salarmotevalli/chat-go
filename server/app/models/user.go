@@ -61,6 +61,11 @@ func (u UserQuery) All() ([]interface{}, error) {
 	for _, item := range result {
 		interfaces = append(interfaces, interface{}(item))
 	}
+
+	if interfaces == nil {
+		interfaces = []interface{}{}
+	}
+
 	return interfaces, nil
 }
 
@@ -97,6 +102,11 @@ func (u UserQuery) WhereEq(field string, target any) ([]interface{}, error) {
 	for _, item := range result {
 		interfaces = append(interfaces, interface{}(item))
 	}
+
+	if interfaces == nil {
+		interfaces = []interface{}{}
+	}
+
 	return interfaces, nil
 }
 
@@ -133,6 +143,11 @@ func (u UserQuery) WhereNe(field string, target any) ([]interface{}, error) {
 	for _, item := range result {
 		interfaces = append(interfaces, interface{}(item))
 	}
+
+	if interfaces == nil {
+		interfaces = []interface{}{}
+	}
+
 	return interfaces, nil
 }
 

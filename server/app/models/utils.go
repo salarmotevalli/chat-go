@@ -1,13 +1,12 @@
 package models
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Where(collection *mongo.Collection, query bson.M) ([]interface{}, error) {
+func Where(collection *mongo.Collection, query any) ([]any, error) {
 
-	var result []*interface{}
+	var result []*any
 	// Run query
 	cur, err := collection.Find(Ctx, query)
 	if err != nil {
@@ -35,13 +34,13 @@ func Where(collection *mongo.Collection, query bson.M) ([]interface{}, error) {
 		return nil, err
 	}
 
-	var interfaces []interface{}
+	var interfaces []any
 	for _, item := range result {
-		interfaces = append(interfaces, interface{}(item))
+		interfaces = append(interfaces, item)
 	}
 
 	if interfaces == nil {
-		interfaces = []interface{}{}
+		interfaces = []any{}
 	}
 
 	return interfaces, nil

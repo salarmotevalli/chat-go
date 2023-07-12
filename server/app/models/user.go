@@ -28,7 +28,7 @@ func UserModel() UserQuery {
 }
 
 func (u UserQuery) All() ([]interface{}, error) {
-	query := bson.M{}
+	query := bson.D{}
 
 	return Where(users, query)
 }

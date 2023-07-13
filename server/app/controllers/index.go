@@ -33,7 +33,35 @@ func SetAvatar(ctx *gin.Context) {
 
 }
 
+type addMessageRequestPayload struct {
+	From    string
+	To      string
+	Message string
+}
+
 func AddMessage(ctx *gin.Context) {
+	var request addMessageRequestPayload
+
+	// get the request body and bind it to the User object
+	if err := ctx.Bind(&request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	messageModel := models.MessageModel()
+
+	users := []string{
+		request.From,
+		request.To,
+	}
+
+	err := messageModel.Create(data)
+
+	if err != nil {
+		log.Println(err.Error())
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
 }
 

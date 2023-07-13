@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type User struct {
+type UserRead struct {
 	ID          primitive.ObjectID `json:"_id" bson:"_id"`
 	Username    string             `json:"username" bson:"username"`
 	Email       string             `json:"email" bson:"email"`
@@ -14,12 +14,19 @@ type User struct {
 	AvatarImage string             `json:"avatarImage" bson:"avatarImage"`
 }
 
-type UserQuery struct{}
+type UserWrite struct {
+	Username    string `json:"username" bson:"username"`
+	Email       string `json:"email" bson:"email"`
+	Password    string `json:"password" bson:"password"`
+	AvatarImage string `json:"avatarImage" bson:"avatarImage"`
+}
 
-var userInstance UserQuery
+type User struct{}
+
+var userInstance User
 var users *mongo.Collection
 
-func UserModel() UserQuery {
+func UserModel() User {
 	if users == nil {
 		users = DB.Collection("users")
 	}
@@ -27,29 +34,29 @@ func UserModel() UserQuery {
 	return userInstance
 }
 
-func (u UserQuery) All() ([]*User, error) {
+func (u User) All() ([]*UserRead, error) {
 	query := bson.D{}
-	usrs, err := Where(users, query, User{})
+	usrs, err := Where(users, query, UserRead{})
 
 	return usrs, err
 }
 
-func (u UserQuery) WhereEq(field string, target any) ([]*User, error) {
+func (u User) WhereEq(field string, target any) ([]*UserRead, error) {
 	query := bson.M{field: bson.M{"$eq": target}}
-	usrs, err := Where(users, query, User{})
+	usrs, err := Where(users, query, UserRead{})
 
 	return usrs, err
 }
 
-func (u UserQuery) WhereNe(field string, target any) ([]*User, error) {
+func (u User) WhereNe(field string, target any) ([]*UserRead, error) {
 	query := bson.M{field: bson.M{"$ne": target}}
-	usrs, err := Where(users, query, User{})
+	usrs, err := Where(users, query, UserRead{})
 
 	return usrs, err
 }
 
-func (u UserQuery) FindId(_id primitive.ObjectID) (any, error) {
-	var result User
+func (u User) FindId(_id primitive.ObjectID) (any, error) {
+	var result UserRead
 	query := bson.D{bson.E{Key: "_id", Value: _id}}
 	cur := users.FindOne(Ctx, query)
 

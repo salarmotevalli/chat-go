@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type Message struct {
+type MessageOutput struct {
 	ID        primitive.ObjectID `json:"_id" bson:"_id"`
 	Message   string             `json:"message" bson:"message"`
 	Users     []string           `json:"users" bson:"users"`
@@ -14,12 +14,18 @@ type Message struct {
 	CreatedAt string             `json:"created_at" bson:"created_at"`
 }
 
-type MessageQuery struct{}
+type MessageInput struct {
+	Message string             `json:"message" bson:"message"`
+	Users   []string           `json:"users" bson:"users"`
+	Sender  primitive.ObjectID `json:"sender" bson:"sender"`
+}
 
-var messageInstance MessageQuery
+type Message struct{}
+
+var messageInstance Message
 var messages *mongo.Collection
 
-func MessageModel() MessageQuery {
+func MessageModel() Message {
 	if messages == nil {
 		messages = DB.Collection("messages")
 	}
@@ -27,21 +33,21 @@ func MessageModel() MessageQuery {
 	return messageInstance
 }
 
-func (m MessageQuery) All() ([]*Message, error) {
-	msgs, err := Where(messages, bson.D{}, Message{})
+func (m Message) All() ([]*MessageOutput, error) {
+	msgs, err := Where(messages, bson.D{}, MessageOutput{})
 	return msgs, err
 }
 
-func (m MessageQuery) WhereEq(field string, target any) ([]*Message, error) {
+func (m Message) WhereEq(field string, target any) ([]*MessageOutput, error) {
 	query := bson.M{field: bson.M{"$all": target}}
-	msgs, err := Where(messages, query, Message{})
+	msgs, err := Where(messages, query, MessageOutput{})
 
 	return msgs, err
 
 }
 
-func (m MessageQuery) FindId(_id primitive.ObjectID) (any, error) {
-	var result Message
+func (m Message) FindId(_id primitive.ObjectID) (any, error) {
+	var result MessageOutput
 	query := bson.D{bson.E{Key: "_id", Value: _id}}
 	cur := users.FindOne(Ctx, query)
 

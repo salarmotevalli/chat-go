@@ -4,7 +4,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Where[T any](collection *mongo.Collection, query any, t T) ([]*T, error) {
+func Where[T any](collection *mongo.Collection, query any, _ T) ([]*T, error) {
 
 	var result []*T
 	// Run query

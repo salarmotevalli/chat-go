@@ -33,7 +33,7 @@ func (m MessageQuery) All() ([]*Message, error) {
 }
 
 func (m MessageQuery) WhereEq(field string, target any) ([]*Message, error) {
-	query := bson.M{field: bson.M{"$eq": target}}
+	query := bson.M{field: bson.M{"$all": target}}
 	msgs, err := Where(messages, query, Message{})
 
 	return msgs, err

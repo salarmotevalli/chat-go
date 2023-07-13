@@ -37,13 +37,13 @@ func AddMessage(ctx *gin.Context) {
 
 }
 
-type getMessagePayload struct {
+type getMessageRequestPayload struct {
 	From string `json:"from"`
 	To   string `json:"to"`
 }
 
 func GetMessage(ctx *gin.Context) {
-	var request getMessagePayload
+	var request getMessageRequestPayload
 
 	// get the request body and bind it to the User object
 	if err := ctx.Bind(&request); err != nil {
@@ -66,5 +66,4 @@ func GetMessage(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, messages)
-
 }

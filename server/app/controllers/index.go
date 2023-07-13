@@ -34,9 +34,9 @@ func SetAvatar(ctx *gin.Context) {
 }
 
 type addMessageRequestPayload struct {
-	From    string
-	To      string
-	Message string
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Message string `json:"message"`
 }
 
 func AddMessage(ctx *gin.Context) {
@@ -49,19 +49,31 @@ func AddMessage(ctx *gin.Context) {
 	}
 
 	messageModel := models.MessageModel()
+	log.Println(request)
+	senderObjectId, err := primitive.ObjectIDFromHex(request.From)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-	users := []string{
+	var data models.MessageWrite
+	data.Message = request.Message
+	data.Users = []string{
 		request.From,
 		request.To,
 	}
+	data.Sender = senderObjectId
 
-	err := messageModel.Create(data)
-
+	err = messageModel.Create(data)
 	if err != nil {
 		log.Println(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	ctx.JSON(http.StatusCreated, map[string]string{
+		"msg": "Message added successfully.",
+	})
 
 }
 
@@ -78,7 +90,6 @@ func GetMessage(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
 	messageModel := models.MessageModel()
 
 	users := []string{

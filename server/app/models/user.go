@@ -27,22 +27,25 @@ func UserModel() UserQuery {
 	return userInstance
 }
 
-func (u UserQuery) All() ([]interface{}, error) {
+func (u UserQuery) All() ([]*User, error) {
 	query := bson.D{}
+	usrs, err := Where(users, query, User{})
 
-	return Where(users, query)
+	return usrs, err
 }
 
-func (u UserQuery) WhereEq(field string, target any) ([]interface{}, error) {
+func (u UserQuery) WhereEq(field string, target any) ([]*User, error) {
 	query := bson.M{field: bson.M{"$eq": target}}
+	usrs, err := Where(users, query, User{})
 
-	return Where(users, query)
+	return usrs, err
 }
 
-func (u UserQuery) WhereNe(field string, target any) ([]interface{}, error) {
+func (u UserQuery) WhereNe(field string, target any) ([]*User, error) {
 	query := bson.M{field: bson.M{"$ne": target}}
+	usrs, err := Where(users, query, User{})
 
-	return Where(users, query)
+	return usrs, err
 }
 
 func (u UserQuery) FindId(_id primitive.ObjectID) (any, error) {

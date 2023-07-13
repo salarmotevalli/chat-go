@@ -4,9 +4,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func Where(collection *mongo.Collection, query any) ([]any, error) {
+func Where[T any](collection *mongo.Collection, query any, t T) ([]*T, error) {
 
-	var result []*any
+	var result []*T
 	// Run query
 	cur, err := collection.Find(Ctx, query)
 	if err != nil {
@@ -15,7 +15,7 @@ func Where(collection *mongo.Collection, query any) ([]any, error) {
 
 	// Collect data
 	for cur.Next(Ctx) {
-		var item interface{}
+		var item T
 
 		err := cur.Decode(&item)
 		if err != nil {
@@ -34,14 +34,9 @@ func Where(collection *mongo.Collection, query any) ([]any, error) {
 		return nil, err
 	}
 
-	var interfaces []any
-	for _, item := range result {
-		interfaces = append(interfaces, item)
+	if result == nil {
+		result = []*T{}
 	}
 
-	if interfaces == nil {
-		interfaces = []any{}
-	}
-
-	return interfaces, nil
+	return result, nil
 }

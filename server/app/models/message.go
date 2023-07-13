@@ -27,14 +27,17 @@ func MessageModel() MessageQuery {
 	return messageInstance
 }
 
-func (m MessageQuery) All() ([]interface{}, error) {
-	return Where(messages, bson.D{})
+func (m MessageQuery) All() ([]*Message, error) {
+	msgs, err := Where(messages, bson.D{}, Message{})
+	return msgs, err
 }
 
-func (m MessageQuery) WhereEq(field string, target any) ([]interface{}, error) {
+func (m MessageQuery) WhereEq(field string, target any) ([]*Message, error) {
 	query := bson.M{field: bson.M{"$eq": target}}
+	msgs, err := Where(messages, query, Message{})
 
-	return Where(messages, query)
+	return msgs, err
+
 }
 
 func (m MessageQuery) FindId(_id primitive.ObjectID) (any, error) {

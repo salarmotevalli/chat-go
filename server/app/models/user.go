@@ -71,3 +71,9 @@ func (u User) FindId(_id primitive.ObjectID) (any, error) {
 
 	return result, nil
 }
+
+func (_ User) Update(data map[string]interface{}, id interface{}) error {
+	_, err := messages.UpdateByID(Ctx, id, data)
+
+	return err
+}

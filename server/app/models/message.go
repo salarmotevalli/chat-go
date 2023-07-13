@@ -13,6 +13,7 @@ type MessageRead struct {
 	Users     []string           `json:"users" bson:"users"`
 	Sender    primitive.ObjectID `json:"sender" bson:"sender"`
 	CreatedAt primitive.DateTime `json:"created_at" bson:"created_at"`
+	UpdatedAt primitive.DateTime `json:"updated_at" bson:"updated_at"`
 }
 
 type MessageWrite struct {
@@ -20,6 +21,7 @@ type MessageWrite struct {
 	Users     []string           `json:"users" bson:"users"`
 	Sender    primitive.ObjectID `json:"sender" bson:"sender"`
 	CreatedAt primitive.DateTime `json:"created_at" bson:"created_at"`
+	UpdatedAt primitive.DateTime `json:"updated_at" bson:"updated_at"`
 }
 
 type Message struct{}
@@ -67,8 +69,17 @@ func (m Message) FindId(_id primitive.ObjectID) (any, error) {
 
 func (m Message) Create(data MessageWrite) error {
 	data.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	data.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 
 	_, err := messages.InsertOne(Ctx, data)
+
+	return err
+}
+
+func (m Message) Update(data map[string]any, id interface{}) error {
+	data["updated_at"] = primitive.NewDateTimeFromTime(time.Now())
+
+	_, err := messages.UpdateByID(Ctx, id, data)
 
 	return err
 }

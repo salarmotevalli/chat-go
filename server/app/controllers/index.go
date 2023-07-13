@@ -29,8 +29,34 @@ func AllUsers(ctx *gin.Context) {
 
 }
 
-func SetAvatar(ctx *gin.Context) {
+type setAvatarRequestPayload struct {
+	image string
+}
 
+func SetAvatar(ctx *gin.Context) {
+	id := ctx.Param("id")
+	var request setAvatarRequestPayload
+
+	// get the request body and bind it to the User object
+	if err := ctx.Bind(&request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	data := map[string]any{
+		"AvatarImage": request.image,
+	}
+
+	err := models.UserModel().Update(data, id)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, map[string]interface{}{
+		"msg":   "Avatar updated successfully.",
+		"image": data["AvatarImage"],
+	})
 }
 
 type addMessageRequestPayload struct {

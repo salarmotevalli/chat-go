@@ -72,8 +72,34 @@ func (u User) FindId(_id primitive.ObjectID) (any, error) {
 	return result, nil
 }
 
-func (_ User) Update(data map[string]interface{}, id interface{}) error {
-	_, err := messages.UpdateByID(Ctx, id, data)
+func (u User) FindField(field string, value any) (*UserRead, error) {
+	var result UserRead
+	query := bson.D{bson.E{Key: field, Value: value}}
+	cur := users.FindOne(Ctx, query)
+
+	err := cur.Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (_ User) Update(data map[string]interface{}, id string) error {
+	var fields = bson.D{}
+	for key, val := range data {
+		fields = append(fields, bson.E{key, val})
+	}
+
+	objId, _ := primitive.ObjectIDFromHex(id)
+	filter := bson.D{{"_id", objId}}
+	update := bson.D{{"$set", fields}}
+
+	_, err := users.UpdateOne(Ctx, filter, update)
 
 	return err
 }

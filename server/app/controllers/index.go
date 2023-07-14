@@ -30,13 +30,12 @@ func AllUsers(ctx *gin.Context) {
 }
 
 type setAvatarRequestPayload struct {
-	image string
+	Image string `bson:"image"`
 }
 
 func SetAvatar(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var request setAvatarRequestPayload
-
 	// get the request body and bind it to the User object
 	if err := ctx.Bind(&request); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -44,7 +43,7 @@ func SetAvatar(ctx *gin.Context) {
 	}
 
 	data := map[string]any{
-		"AvatarImage": request.image,
+		"avatarImage": request.Image,
 	}
 
 	err := models.UserModel().Update(data, id)
@@ -55,7 +54,7 @@ func SetAvatar(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, map[string]interface{}{
 		"msg":   "Avatar updated successfully.",
-		"image": data["AvatarImage"],
+		"image": data["avatarImage"],
 	})
 }
 

@@ -29,12 +29,12 @@ func Login(ctx *gin.Context) {
 	}
 
 	if user == nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or email is incorrect")})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or email is incorrect").Error()})
 		return
 	}
 
 	if comparePasswords(request.Password, user.Password) {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or email is incorrect")})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or email is incorrect").Error()})
 		return
 	}
 
@@ -49,10 +49,50 @@ func comparePasswords(password string, hashedPassword string) bool {
 	return err == nil
 }
 
-func Register(ctx *gin.Context) {
+type registerRequestPayload struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
+func Register(ctx *gin.Context) {
+	var request registerRequestPayload
+
+	// Bind whit payload
+	if err := ctx.Bind(&request); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	userModel := models.UserModel()
+	user, _ := userModel.FindField("email", request.Email)
+
+	if user != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("user already exist").Error()})
+		return
+	}
+
+	hashBytes, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+
+	data := models.UserWrite{
+		Email:    request.Email,
+		Password: string(hashBytes),
+		Username: request.Username,
+	}
+
+	err := userModel.Create(data)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	data.Password = ""
+
+	ctx.JSON(http.StatusCreated, map[string]any{
+		"status": true,
+		"user":   data,
+	})
 }
 
 func LogOut(ctx *gin.Context) {
-
+	ctx.Status(http.StatusOK)
 }

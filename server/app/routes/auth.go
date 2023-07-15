@@ -12,5 +12,5 @@ func setAuthRoutes(api *gin.RouterGroup) {
 	auth.GET("/allusers/:id", controllers.AllUsers)
 	auth.POST("/login", controllers.Login)
 	auth.POST("/register", controllers.Register)
-	auth.POST("/logout", controllers.LogOut)
+	auth.GET("/logout/:id", controllers.LogOut)
 }

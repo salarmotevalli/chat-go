@@ -4,6 +4,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"time"
 )
 
 type UserRead struct {
@@ -15,10 +16,12 @@ type UserRead struct {
 }
 
 type UserWrite struct {
-	Username    string `json:"username" bson:"username"`
-	Email       string `json:"email" bson:"email"`
-	Password    string `json:"password" bson:"password"`
-	AvatarImage string `json:"avatarImage" bson:"avatarImage"`
+	Username    string             `json:"username" bson:"username"`
+	Email       string             `json:"email" bson:"email"`
+	Password    string             `json:"password" bson:"password"`
+	AvatarImage string             `json:"avatarImage" bson:"avatarImage"`
+	CreatedAt   primitive.DateTime `json:"created_at" bson:"created_at"`
+	UpdatedAt   primitive.DateTime `json:"updated_at" bson:"updated_at"`
 }
 
 type User struct{}
@@ -89,7 +92,18 @@ func (u User) FindField(field string, value any) (*UserRead, error) {
 	return &result, nil
 }
 
+func (_ User) Create(data UserWrite) error {
+	data.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
+	data.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
+
+	_, err := users.InsertOne(Ctx, data)
+
+	return err
+}
+
 func (_ User) Update(data map[string]interface{}, id string) error {
+	data["updated_at"] = primitive.NewDateTimeFromTime(time.Now())
+
 	var fields = bson.D{}
 	for key, val := range data {
 		fields = append(fields, bson.E{key, val})

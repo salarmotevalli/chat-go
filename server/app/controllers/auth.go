@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"chat/app/models"
 	"errors"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
+
+	"chat/app/models"
 )
 
 type loginRequestPayload struct {
@@ -79,17 +81,20 @@ func Register(ctx *gin.Context) {
 		Username: request.Username,
 	}
 
-	err := userModel.Create(data)
+	createdUser, err := userModel.Create(data)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	data.Password = ""
+	// createdUser := userModel.FindId(createdUser)
+
+
+
 
 	ctx.JSON(http.StatusCreated, map[string]any{
 		"status": true,
-		"user":   data,
+		"user": createdUser,
 	})
 }
 

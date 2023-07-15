@@ -31,7 +31,6 @@ func setMessageRoutes(api *gin.RouterGroup) {
 	// Set prefix
 	msg := api.Group("/messages")
 
-	msg.POST("/setavatart/:id", controllers.SetAvatar)
 	msg.POST("/addmsg", controllers.AddMessage)
 	msg.POST("/getmsg", controllers.GetMessage)
 }

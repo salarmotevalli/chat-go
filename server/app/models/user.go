@@ -1,10 +1,11 @@
 package models
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 )
 
 type UserRead struct {
@@ -92,13 +93,17 @@ func (u User) FindField(field string, value any) (*UserRead, error) {
 	return &result, nil
 }
 
-func (_ User) Create(data UserWrite) error {
+func (_ User) Create(data UserWrite) (UserRead, error) {
 	data.CreatedAt = primitive.NewDateTimeFromTime(time.Now())
 	data.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 
-	_, err := users.InsertOne(Ctx, data)
+	userID, err := users.InsertOne(Ctx, data)
 
-	return err
+	var user UserRead
+
+	users.FindOne(Ctx, bson.D{bson.E{Key: "_id", Value: userID.InsertedID}}).Decode(&user)
+
+	return user, err
 }
 
 func (_ User) Update(data map[string]interface{}, id string) error {

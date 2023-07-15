@@ -30,7 +30,7 @@ func AllUsers(ctx *gin.Context) {
 }
 
 type setAvatarRequestPayload struct {
-	Image string `bson:"image"`
+	Image string `json:"image"`
 }
 
 func SetAvatar(ctx *gin.Context) {
@@ -53,7 +53,7 @@ func SetAvatar(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, map[string]interface{}{
-		"msg":   "Avatar updated successfully.",
+		"isSet": true,
 		"image": data["avatarImage"],
 	})
 }

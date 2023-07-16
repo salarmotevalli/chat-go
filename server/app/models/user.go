@@ -106,7 +106,7 @@ func (_ User) Create(data UserWrite) (UserRead, error) {
 	return user, err
 }
 
-func (_ User) Update(data map[string]interface{}, id string) error {
+func (_ User) Update(data map[string]interface{}, id primitive.ObjectID) error {
 	data["updated_at"] = primitive.NewDateTimeFromTime(time.Now())
 
 	var fields = bson.D{}
@@ -114,8 +114,7 @@ func (_ User) Update(data map[string]interface{}, id string) error {
 		fields = append(fields, bson.E{key, val})
 	}
 
-	objId, _ := primitive.ObjectIDFromHex(id)
-	filter := bson.D{{"_id", objId}}
+	filter := bson.D{{"_id", id}}
 	update := bson.D{{"$set", fields}}
 
 	_, err := users.UpdateOne(Ctx, filter, update)

@@ -1,32 +1,25 @@
 package controllers
 
 import (
-	"chat/app/models"
-	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"chat/app/services"
 )
 
 func AllUsers(ctx *gin.Context) {
 	id := ctx.Param("id")
-	_id, err := primitive.ObjectIDFromHex(id)
+	
+	// Get all users except logged in user
+	users, err := services.LoadUserService().GetOtherUsers(id)
 	if err != nil {
-		log.Println(err.Error())
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	userModel := models.UserModel()
-	users, err := userModel.WhereNe("_id", _id)
-	if err != nil {
-		log.Println(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, users)
-
 }
 
 type setAvatarRequestPayload struct {
@@ -36,17 +29,14 @@ type setAvatarRequestPayload struct {
 func SetAvatar(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var request setAvatarRequestPayload
-	// get the request body and bind it to the User object
+
+	// Get the request body and bind it to the User object
 	if err := ctx.Bind(&request); err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	data := map[string]any{
-		"avatarImage": request.Image,
-	}
-
-	err := models.UserModel().Update(data, id)
+	err := services.LoadUserService().UpdateUserAvatar(request.Image, id)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -54,7 +44,7 @@ func SetAvatar(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, map[string]interface{}{
 		"isSet": true,
-		"image": data["avatarImage"],
+		"image": request.Image,
 	})
 }
 
@@ -73,33 +63,14 @@ func AddMessage(ctx *gin.Context) {
 		return
 	}
 
-	messageModel := models.MessageModel()
-	log.Println(request)
-	senderObjectId, err := primitive.ObjectIDFromHex(request.From)
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	var data models.MessageWrite
-	data.Message = request.Message
-	data.Users = []string{
-		request.From,
-		request.To,
-	}
-	data.Sender = senderObjectId
-
-	err = messageModel.Create(data)
-	if err != nil {
-		log.Println(err.Error())
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	err := services.LoadMessageService().CreateMessage(request.From, request.To, request.Message)
+	if err!= nil {
+		
 	}
 
 	ctx.JSON(http.StatusCreated, map[string]string{
 		"msg": "Message added successfully.",
 	})
-
 }
 
 type getMessageRequestPayload struct {
@@ -115,14 +86,8 @@ func GetMessage(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	messageModel := models.MessageModel()
-
-	users := []string{
-		request.From,
-		request.To,
-	}
-
-	messages, err := messageModel.WhereEq("users", users)
+	
+	messages, err := services.LoadMessageService().GetMessages(request.From, request.To)
 	if err != nil {
 		log.Println(err.Error())
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

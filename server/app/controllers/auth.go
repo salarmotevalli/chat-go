@@ -31,23 +31,27 @@ func Login(ctx *gin.Context) {
 	}
 
 	if user == nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or email is incorrect").Error()})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or password is incorrect").Error()})
 		return
 	}
 
-	if comparePasswords(request.Password, user.Password) {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": errors.New("username or email is incorrect").Error()})
+	if !comparePasswords(user.Password, request.Password) {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"errorTTT": errors.New("username or password is incorrect").Error()})
 		return
 	}
 
 	user.Password = ""
 
-	ctx.JSON(http.StatusCreated, user)
+	ctx.JSON(http.StatusAccepted, map[string]any {
+		"status": true,
+		"user": user,
+	})
 
 }
 
-func comparePasswords(password string, hashedPassword string) bool {
+func comparePasswords(hashedPassword, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+
 	return err == nil
 }
 
@@ -73,7 +77,8 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	hashBytes, _ := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+
+	hashBytes, _ := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 
 	data := models.UserWrite{
 		Email:    request.Email,
@@ -89,12 +94,9 @@ func Register(ctx *gin.Context) {
 
 	// createdUser := userModel.FindId(createdUser)
 
-
-
-
 	ctx.JSON(http.StatusCreated, map[string]any{
 		"status": true,
-		"user": createdUser,
+		"user":   createdUser,
 	})
 }
 

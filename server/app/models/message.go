@@ -1,10 +1,11 @@
 package models
 
 import (
+	"time"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"time"
 )
 
 type MessageRead struct {
@@ -47,7 +48,6 @@ func (m Message) WhereEq(field string, target any) ([]*MessageRead, error) {
 	msgs, err := Where(messages, query, MessageRead{})
 
 	return msgs, err
-
 }
 
 func (m Message) FindId(_id primitive.ObjectID) (any, error) {

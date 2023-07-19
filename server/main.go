@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-gonic/gin"
+	socketio "github.com/googollee/go-socket.io"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -58,23 +60,37 @@ func main() {
 	// Initialize app
 	app := App{}
 	models.Init(dbClient.Database(dbName), ctx)
+
+	engine := gin.New()
+	socket := socketio.NewServer(nil)
+
+	routes.Setup(engine, socket)
+	appPort := os.Getenv("APP_PORT")
+
 	// Serve app
-	go app.serve()
+	go app.serve(engine, socket, appPort)
 
 	// Wait until end serving
 	<-wait
 }
 
-func (app *App) serve() {
-	// Get routes
-	appRoutes := routes.Setup()
-	appPort := os.Getenv("APP_PORT")
+func (app *App) serve(engine *gin.Engine, socket *socketio.Server, appPort string) {
+
+	go runSocketServer(socket)
+
+	defer socket.Close()
 
 	// Start serving app
-	err := http.ListenAndServe(fmt.Sprintf(":%s", appPort), appRoutes)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", appPort), engine)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	wait <- struct{}{}
+}
+
+func runSocketServer(socket *socketio.Server) {	
+	if err := socket.Serve(); err != nil {
+		log.Fatalf("socketio listen error: %s\n", err)
+	}
 }

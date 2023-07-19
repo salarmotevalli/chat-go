@@ -27,7 +27,17 @@ export default function Chat() {
   }, []);
   useEffect(() => {
     if (currentUser) {
-      socket.current = io(host);
+      socket.current = io(host, {
+        transportOptions: {
+          websocket: {
+            extraHeaders: {
+              Upgrade: 'websocket',
+              Connection: 'Upgrade',
+              'Sec-WebSocket-Accept': 'vtG38AFyC6ERRJ2xUPDGwhJOl7g='
+            }
+          }
+        }
+      });
       socket.current.emit("add-user", currentUser._id);
     }
   }, [currentUser]);

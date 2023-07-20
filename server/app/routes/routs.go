@@ -10,15 +10,10 @@ import (
 )
 
 func Setup(engine *gin.Engine, socket *socketio.Server)  {
-	controllers.SetupSocket(socket)
+	setupWsRoutes(socket)	
 	
 	engine.Use(corsMiddleware("http://localhost:3000"))
 	
-	engine.GET("/socket.io", gin.WrapH(socket))
-	engine.POST("/socket.io", gin.WrapH(socket))
-	engine.StaticFS("/public", http.Dir("./asset"))
-
-
 	api := engine.Group("/api")
 	setMessageRoutes(api)
 	setAuthRoutes(api)
@@ -26,7 +21,7 @@ func Setup(engine *gin.Engine, socket *socketio.Server)  {
 
 func corsMiddleware(allowOrigin string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
@@ -48,4 +43,18 @@ func setMessageRoutes(api *gin.RouterGroup) {
 
 	msg.POST("/addmsg", controllers.AddMessage)
 	msg.POST("/getmsg", controllers.GetMessage)
+}
+
+func setupWsRoutes(socket *socketio.Server) {
+	socket.OnConnect("/", controllers.HandleConnection)
+
+	socket.OnEvent("/", "notice", controllers.HandleNoticeEvent)
+
+	socket.OnEvent("/chat", "msg", controllers.HandleMsgEvent)
+
+	socket.OnEvent("/", "bye", controllers.HandleByeEvent)
+
+	socket.OnError("/", controllers.HandleErr)
+
+	socket.OnDisconnect("/", controllers.HandleDisconnection)	
 }

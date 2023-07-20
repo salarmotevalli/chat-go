@@ -75,8 +75,15 @@ func main() {
 }
 
 func (app *App) serve(engine *gin.Engine, socket *socketio.Server, appPort string) {
-
+	// go runSocketServer(socket)
+	
 	go runSocketServer(socket)
+
+	defer socket.Close()
+
+	engine.GET("/socket.io/*any", gin.WrapH(socket))
+	engine.POST("/socket.io/*any", gin.WrapH(socket))
+	engine.StaticFS("/public", http.Dir("./asset"))
 
 	defer socket.Close()
 

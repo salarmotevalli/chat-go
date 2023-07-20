@@ -14,7 +14,6 @@ func HandleConnection(s socketio.Conn) error {
 
 func HandleNoticeEvent(s socketio.Conn, msg string) {
 	log.Println("notice:", msg)
-	log.Println("notice:", s)
 	s.Emit("reply", "have "+msg)
 }
 

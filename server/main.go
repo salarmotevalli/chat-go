@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	socketio "github.com/googollee/go-socket.io"
@@ -19,9 +20,9 @@ import (
 )
 
 var (
-	dbClient *mongo.Client
-	ctx      context.Context
-	cancel   context.CancelFunc
+	mongoClient *mongo.Client
+	ctx         context.Context
+	cancel      context.CancelFunc
 )
 
 type App struct{}
@@ -37,12 +38,9 @@ func init() {
 	ctx, cancel = context.WithCancel(context.Background())
 
 	// Connect to the mongo
-	dbClient, err = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
-
-	// Check mongo ping
-	err = dbClient.Ping(ctx, readpref.Primary())
+	mongoClient, err = connectToMongo()
 	if err != nil {
-		log.Fatal("error while trying to ping mongo", err)
+		log.Fatal("Could not connect to Mongo", err)
 	}
 }
 
@@ -50,7 +48,7 @@ func init() {
 var wait chan struct{}
 
 func main() {
-	defer dbClient.Disconnect(ctx)
+	defer mongoClient.Disconnect(ctx)
 	defer cancel()
 
 	wait = make(chan struct{}, 1)
@@ -59,7 +57,7 @@ func main() {
 
 	// Initialize app
 	app := App{}
-	models.Init(dbClient.Database(dbName), ctx)
+	models.Init(mongoClient.Database(dbName), ctx)
 
 	engine := gin.New()
 	socket := socketio.NewServer(nil)
@@ -76,7 +74,7 @@ func main() {
 
 func (app *App) serve(engine *gin.Engine, socket *socketio.Server, appPort string) {
 	// go runSocketServer(socket)
-	
+
 	go runSocketServer(socket)
 
 	defer socket.Close()
@@ -96,8 +94,34 @@ func (app *App) serve(engine *gin.Engine, socket *socketio.Server, appPort strin
 	wait <- struct{}{}
 }
 
-func runSocketServer(socket *socketio.Server) {	
+func runSocketServer(socket *socketio.Server) {
 	if err := socket.Serve(); err != nil {
 		log.Fatalf("socketio listen error: %s\n", err)
 	}
 }
+
+func connectToMongo() (*mongo.Client, error) {
+	var err error
+	var client *mongo.Client
+
+	for _ = range [5]struct{}{} {
+
+		log.Println("Connecting to Mongo...")
+
+		client, _ = mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+
+		// Check mongo ping
+		err = client.Ping(ctx, readpref.Primary())
+
+		if err == nil {
+			return client, err
+		}
+
+		log.Println("backing off...")
+		time.Sleep(time.Second)
+	}
+
+	return nil, err
+
+}
+

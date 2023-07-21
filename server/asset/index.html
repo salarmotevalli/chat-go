@@ -14,17 +14,23 @@
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+
+    <h1 id="body">test</h1>
+   
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
+
+      var body = document.getElementById('body');
+
       var socket = io();
       var s2 = io("/chat");
       socket.on('reply', function(msg){
         $('#messages').append($('<li>').text(msg));
+      });
+
+      socket.on('broadcast',function(count){
+         body.innerText = count + 'clients are connected';
       });
 
       $('form').submit(function(){

@@ -1,14 +1,22 @@
 package controllers
 
 import (
+	// "fmt"
 	"log"
 
 	socketio "github.com/googollee/go-socket.io"
 )
 
+var socket *socketio.Server
+
+func SetupWsController(s *socketio.Server) {
+	socket = s
+}
+
 func HandleConnection(s socketio.Conn) error {
 	s.SetContext("")
 	log.Println("connected:", s.ID())
+
 	return nil
 }
 

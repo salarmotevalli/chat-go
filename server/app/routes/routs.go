@@ -21,7 +21,7 @@ func Setup(engine *gin.Engine, socket *socketio.Server)  {
 
 func corsMiddleware(allowOrigin string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
@@ -46,8 +46,10 @@ func setMessageRoutes(api *gin.RouterGroup) {
 }
 
 func setupWsRoutes(socket *socketio.Server) {
-	socket.OnConnect("/", controllers.HandleConnection)
+	controllers.SetupWsController(socket)
 
+	socket.OnConnect("/", controllers.HandleConnection)
+	
 	socket.OnEvent("/", "notice", controllers.HandleNoticeEvent)
 
 	socket.OnEvent("/chat", "msg", controllers.HandleMsgEvent)
@@ -56,5 +58,5 @@ func setupWsRoutes(socket *socketio.Server) {
 
 	socket.OnError("/", controllers.HandleErr)
 
-	socket.OnDisconnect("/", controllers.HandleDisconnection)	
+	socket.OnDisconnect("/", controllers.HandleDisconnection)
 }

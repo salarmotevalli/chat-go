@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	socketio "github.com/googollee/go-socket.io"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -21,6 +22,7 @@ import (
 
 var (
 	mongoClient *mongo.Client
+	redisClient *redis.Client
 	ctx         context.Context
 	cancel      context.CancelFunc
 )
@@ -40,8 +42,14 @@ func init() {
 	// Connect to the mongo
 	mongoClient, err = connectToMongo()
 	if err != nil {
-		log.Fatal("Could not connect to Mongo", err)
+		log.Fatal("Could not connect to Mongo: ", err)
 	}
+
+	redisClient, err = connectToRedis()
+	if err != nil {
+		log.Fatal("Could not connect to Redis: ", err)
+	}
+
 }
 
 // waiter for serve goroutine
@@ -114,6 +122,7 @@ func connectToMongo() (*mongo.Client, error) {
 		err = client.Ping(ctx, readpref.Primary())
 
 		if err == nil {
+			log.Println("Connected to Mongo.")
 			return client, err
 		}
 
@@ -125,3 +134,31 @@ func connectToMongo() (*mongo.Client, error) {
 
 }
 
+func connectToRedis() (*redis.Client, error) {
+	var err error
+	var client *redis.Client
+
+	for _ = range [5]struct{}{} {
+
+		log.Println("Connecting to Redis...")
+
+		client = redis.NewClient(&redis.Options{
+			Addr: "localhost:6379",
+			Password: "salar",
+			DB: 0,
+		})
+
+		// Check redis ping
+		pong, err := client.Ping(ctx).Result()
+		if err == nil && pong == "PONG" {
+			log.Println("Connected to Redis.")
+			return client, nil
+		}
+
+		log.Println("backing off...")
+		time.Sleep(time.Second)
+	}
+
+	return nil, err
+
+}

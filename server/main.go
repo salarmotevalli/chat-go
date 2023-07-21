@@ -57,6 +57,7 @@ var wait chan struct{}
 
 func main() {
 	defer mongoClient.Disconnect(ctx)
+	defer redisClient.Close()
 	defer cancel()
 
 	wait = make(chan struct{}, 1)
@@ -82,7 +83,6 @@ func main() {
 
 func (app *App) serve(engine *gin.Engine, socket *socketio.Server, appPort string) {
 	// go runSocketServer(socket)
-
 	go runSocketServer(socket)
 
 	defer socket.Close()
@@ -103,10 +103,18 @@ func (app *App) serve(engine *gin.Engine, socket *socketio.Server, appPort strin
 }
 
 func runSocketServer(socket *socketio.Server) {
+	// Serve socket server
 	if err := socket.Serve(); err != nil {
 		log.Fatalf("socketio listen error: %s\n", err)
 	}
 }
+
+/*
+	These functions are for connecting to database
+	they will try to connect 5 times and return
+	connection and error
+*/
+
 
 func connectToMongo() (*mongo.Client, error) {
 	var err error

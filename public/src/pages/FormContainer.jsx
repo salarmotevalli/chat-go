@@ -2,7 +2,7 @@ import React from "react";
 import logo from "../assets/logo.svg";
 import { Link } from "react-router-dom";
 import style from "./Login.module.css";
-const FormContainer = () => {
+const FormContainer = ({ handleChange, handleSubmit }) => {
   return (
     <>
       <div className="container">
@@ -24,6 +24,7 @@ const FormContainer = () => {
               <div className="col-10 col-sm-10 col-md-9 p-0 my-4">
                 <form
                   action=""
+                  onSubmit={(event) => handleSubmit(event)}
                   className="form-control border-0 d-flex flex-column bg-transparent"
                 >
                   <input
@@ -32,12 +33,14 @@ const FormContainer = () => {
                     placeholder="Username"
                     name="username"
                     min="3"
+                    onChange={(e)=> handleChange(e)}
                   />
                   <input
                     className={`bg-transparent rounded mb-4 text-white ${style.input}`}
                     type="password"
                     placeholder="Password"
                     name="password"
+                    onChange={(e) => handleChange(e)}
                   />
                   <button
                     type="submit"

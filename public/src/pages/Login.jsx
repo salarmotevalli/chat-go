@@ -64,7 +64,7 @@ export default function Login() {
   return (
     <>
       <div className={`form_container vh-100 vw-100 ${style.form_container}`}>
-        <FormContainer />
+        <FormContainer handleChange={handleChange} handleSubmit={handleSubmit} />
         <ToastContainer />
       </div>
     </>

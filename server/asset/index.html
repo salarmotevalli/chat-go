@@ -1,48 +1,110 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-    </style>
-  </head>
-  <body>
 
-    <h1 id="body">test</h1>
-   
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      var body = document.getElementById('body');
+    body {
+      font: 13px Helvetica, Arial;
+    }
 
-      var socket = io();
-      var s2 = io("/chat");
-      socket.on('reply', function(msg){
-        $('#messages').append($('<li>').text(msg));
-      });
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
 
-      socket.on('broadcast',function(count){
-         body.innerText = count + 'clients are connected';
-      });
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 90%;
+      margin-right: .5%;
+    }
 
-      $('form').submit(function(){
-        s2.emit('msg', $('#m').val(), function(data){
-          $('#messages').append($('<li>').text('ACK CALLBACK: ' + data));
-        });
+    form button {
+      width: 9%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
 
-        socket.emit('notice', $('#m').val());
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
 
-        $('#m').val('');
-        return false;
-      });
-    </script>
-  </body>
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>test</h1>
+
+  <input type="text" id="msg-input">
+  <button type="button" onclick="msg_process()" id="send">send</button>
+
+  <ul id="message-body">
+
+  </ul>
+
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+
+    var body = document.getElementById('message-body');
+    var input = document.getElementById('msg-input');
+    var send = document.getElementById('send');
+
+    var socket = io({
+      query: {
+        id: "john",
+      },
+    });
+    // var s2 = io("/chat");
+
+    function msg_process() {
+      socket.emit("msg-added", { id: "12345hdrfg", message: input.value });
+      body.innerHTML += `<li>${input.value}</li>`;
+      input.value = "";
+    }
+
+
+
+      // socket.on('reply', function(msg){
+      //   $('#messages').append($('<li>').text(msg));
+      // });
+
+      // socket.on('broadcast',function(count){
+      //    body.innerText = count + 'clients are connected';
+      // });
+
+      // $('form').submit(function(){
+      //   s2.emit('msg', $('#m').val(), function(data){
+      //     $('#messages').append($('<li>').text('ACK CALLBACK: ' + data));
+      //   });
+
+      //   socket.emit('msg', $('#m').val());
+
+      //   $('#m').val('');
+      //   return false;
+      // });
+  </script>
+</body>
+
 </html>

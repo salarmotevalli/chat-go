@@ -47,14 +47,16 @@ func setMessageRoutes(api *gin.RouterGroup) {
 
 func setupWsRoutes(socket *socketio.Server) {
 	controllers.SetupWsController(socket)
-
+	
+	socket.OnEvent("/", "msg-added", controllers.MsgAddedEventHandlre)
+	
 	socket.OnConnect("/", controllers.HandleConnection)
 	
-	socket.OnEvent("/", "notice", controllers.HandleNoticeEvent)
+	// socket.OnEvent("/", "notice", controllers.HandleNoticeEvent)
 
-	socket.OnEvent("/chat", "msg", controllers.HandleMsgEvent)
+	// socket.OnEvent("/chat", "msg", controllers.HandleMsgEvent)
 
-	socket.OnEvent("/", "bye", controllers.HandleByeEvent)
+	// socket.OnEvent("/", "bye", controllers.HandleByeEvent)
 
 	socket.OnError("/", controllers.HandleErr)
 

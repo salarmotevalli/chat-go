@@ -66,8 +66,11 @@ func main() {
 
 	// Initialize app
 	app := App{}
+
+	// Pass database to models module
 	models.Init(mongoClient.Database(dbName), ctx)
 
+	// Create Http and Socket server
 	engine := gin.New()
 	socket := socketio.NewServer(nil)
 

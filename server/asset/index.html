@@ -76,34 +76,24 @@
         id: "john",
       },
     });
-    // var s2 = io("/chat");
 
     function msg_process() {
-      socket.emit("msg-added", { id: "12345hdrfg", message: input.value });
+      socket.emit("msg-added", { from: "uuid1", message: input.value, to: "uuid2" });
       body.innerHTML += `<li>${input.value}</li>`;
       input.value = "";
     }
 
 
 
-      // socket.on('reply', function(msg){
-      //   $('#messages').append($('<li>').text(msg));
-      // });
+      socket.on('user_added', function(){
+        // Request to get users
+      });
 
-      // socket.on('broadcast',function(count){
-      //    body.innerText = count + 'clients are connected';
-      // });
-
-      // $('form').submit(function(){
-      //   s2.emit('msg', $('#m').val(), function(data){
-      //     $('#messages').append($('<li>').text('ACK CALLBACK: ' + data));
-      //   });
-
-      //   socket.emit('msg', $('#m').val());
-
-      //   $('#m').val('');
-      //   return false;
-      // });
+      socket.on('entry-message', function(data){
+        var dataObj = JSON.parse(data)
+        console.log(dataObj);
+        body.innerHTML += `<li>${dataObj.message}</li>`;
+      });
   </script>
 </body>
 

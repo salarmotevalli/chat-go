@@ -65,7 +65,8 @@ func AddMessage(ctx *gin.Context) {
 
 	err := services.LoadMessageService().CreateMessage(request.From, request.To, request.Message)
 	if err!= nil {
-		
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	ctx.JSON(http.StatusCreated, map[string]string{

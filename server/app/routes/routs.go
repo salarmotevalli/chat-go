@@ -52,11 +52,7 @@ func setupWsRoutes(socket *socketio.Server) {
 	
 	socket.OnConnect("/", controllers.HandleConnection)
 	
-	// socket.OnEvent("/", "notice", controllers.HandleNoticeEvent)
-
-	// socket.OnEvent("/chat", "msg", controllers.HandleMsgEvent)
-
-	// socket.OnEvent("/", "bye", controllers.HandleByeEvent)
+	socket.OnEvent("/", "add-usr", controllers.HandleAddUserEvent)
 
 	socket.OnError("/", controllers.HandleErr)
 

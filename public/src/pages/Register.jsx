@@ -5,7 +5,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { registerRoute } from "../utils/APIRoutes";
 import style from "./Login.module.css";
-import RegisterPage from "./RegisterPageContent";
+import RegisterPage from "./RegisterFormContainer";
 
 export default function Register() {
   const navigate = useNavigate();

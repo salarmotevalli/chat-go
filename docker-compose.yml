@@ -6,4 +6,11 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo/:/data/db
+      - ./db/mongo/:/data/db
+
+  redis: 
+    image: redis:6.2.5
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./db/redis/:/data

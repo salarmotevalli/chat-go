@@ -32,7 +32,6 @@ func Login(ctx *gin.Context) {
 		"status": true,
 		"user":   user,
 	})
-
 }
 
 type registerRequestPayload struct {

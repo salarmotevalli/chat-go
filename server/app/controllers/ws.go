@@ -22,38 +22,38 @@ var clients []*client
 
 var socket *socketio.Server
 
-func MsgAddedEventHandlre(s socketio.Conn, data map[string]string) {
-	log.Println(data)
-	err := services.LoadMessageService().CreateMessage(data["from"], data["to"], data["message"])
-	if err!= nil {
-	}
-
-	id , err := primitive.ObjectIDFromHex(data["from"])
-	var responePayload models.MessageRead
-	responePayload.Sender = id
-	responePayload.Users = []string{data["from"], data["to"]}
-	responePayload.Message = data["message"]
-
-	responseData, err := json.Marshal(responePayload)
-
-	for _, client := range clients {
-		if client.connId == data["to"] {
-			client.socketConn.Emit("entry-message", string(responseData))
-		}
-	}
-
-}
-
 func SetupWsController(s *socketio.Server) {
 	socket = s
 }
 
-func HandleConnection(s socketio.Conn) error {
-	s.SetContext("")
-	log.Println("connected:", s.ID())
+func MsgAddedEventHandlre(s socketio.Conn, data map[string]string) error {
+	// Store msg in db
+	err := services.LoadMessageService().CreateMessage(data["from"], data["to"], data["message"])
+	if err!= nil {
+		return err
+	}
 
+	// Prepair response body
+	id , err := primitive.ObjectIDFromHex(data["from"])
+	var responePayload = models.MessageRead{
+		Sender: id,
+		Users: []string{data["from"], data["to"]},
+		Message: data["message"],
+	} 
+
+	// To json
+	responseData, err := json.Marshal(responePayload)
+
+	// Send to contact user
+	sendToConn(data["to"], string(responseData))
+
+	return nil
+}
+
+func HandleConnection(s socketio.Conn) error {
 	id := getIdFromRawQuery(s.URL().RawQuery)
 
+	// Add new client
 	clients = append(clients, &client{
 		userId: id,
 		connId: s.ID(),
@@ -85,4 +85,12 @@ func HandleErr(_ socketio.Conn, e error) {
 
 func HandleDisconnection(s socketio.Conn, msg string) {
 	log.Println("closed", msg)
+}
+
+func sendToConn(connId string, data string) {
+	for _, client := range clients {
+		if client.connId == connId {
+			client.socketConn.Emit("entry-message", data)
+		}
+	}
 }

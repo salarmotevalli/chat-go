@@ -1,60 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import style from "./Form.module.css";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
-import { loginRoute } from "../utils/APIRoutes";
-import { useNavigate } from "react-router-dom";
-
-const schema = z.object({
-  username: z
-    .string()
-    .min(4, { message: "The username must be 4 characters or more" })
-    .max(10, { message: "The username must be 10 characters or less" })
-    .regex(/^[a-zA-Z0-9_]+$/, {
-      message:
-        "The username must contain only letters, numbers and underscore (_)",
-    }),
-  password: z
-    .string()
-    .min(1, { message: "Password is required" })
-    .min(8, { message: "Password must have more than 8 characters" }),
-});
+import useCustomLogin from "../hooks/useCustomLogin";
 
 const LoginForm = () => {
-  const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
+  const { schema, errorMessage, onSubmit } = useCustomLogin();
 
-  useEffect(() => {
-    if (localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
-      navigate("/");
-    }
-  }, []);
-
-  const onSubmit = async (data) => {
-    try {
-      const values = schema.parse(data);
-      const { username, password } = values;
-      const { data: response } = await axios.post(loginRoute, {
-        username,
-        password,
-      });
-      if (response.status === false) {
-        setErrorMessage(response.msg);
-      }
-      if (response.status === true) {
-        localStorage.setItem(
-          process.env.REACT_APP_LOCALHOST_KEY,
-          JSON.stringify(response.user)
-        );
-        navigate("/");
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
   const {
     register,
     handleSubmit,

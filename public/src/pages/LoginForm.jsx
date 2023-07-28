@@ -13,14 +13,14 @@ const schema = z.object({
     .string()
     .min(4, { message: "The username must be 4 characters or more" })
     .max(10, { message: "The username must be 10 characters or less" })
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "The username must contain only letters, numbers and underscore (_)"
-    ),
+    .regex(/^[a-zA-Z0-9_]+$/, {
+      message:
+        "The username must contain only letters, numbers and underscore (_)",
+    }),
   password: z
     .string()
-    .min(1, "Password is required")
-    .min(8, "Password must have more than 8 characters"),
+    .min(1, { message: "Password is required" })
+    .min(8, { message: "Password must have more than 8 characters" }),
 });
 
 const LoginForm = () => {
@@ -101,7 +101,7 @@ const LoginForm = () => {
             >
               Don't have an account ?{" "}
               <Link
-                to="/register"
+                to="/Register"
                 className={`fw-bold text-decoration-none ${style.link}`}
               >
                 Create One.

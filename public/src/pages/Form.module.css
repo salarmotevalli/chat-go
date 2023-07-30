@@ -1,6 +1,3 @@
-.form_container {
-  background-color: #131324;
-}
 .form_bg {
   background-color: rgb(10, 10, 19);
 }
@@ -24,4 +21,7 @@
 }
 .link {
   color: #4e0eff;
+}
+.link_text {
+  font-size: 14px;
 }
